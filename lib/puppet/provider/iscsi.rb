@@ -137,17 +137,22 @@ class Puppet::Provider::Iscsi < Puppet::Provider
   end
 
   def read_savefile
+    # save config first, so any changes that exist are saved to disk
+    # and we can read them in the next command
+    # TODO: cache the config at the beginning of the run so we aren't
+    #       saving and reading the config a bunch
+    saveconfig
     if File.exist?(resource[:savefile])
       Puppet.debug("Savefile exists: #{resource[:savefile]}")
       raw_data = File.read(resource[:savefile])
       Puppet.debug("Savefile raw data: #{raw_data}")
-      JSON.parse(raw_data, symbolize_names: true)
+      JSON.parse(raw_data)
     else
       Puppet.debug("Savefile doesn't exist: #{resource[:savefile]}")
       {}
     end
   end
-
+  
   def saveconfig
     # save after every successful command because we read from the config
     # if we don't save and the puppet run fails, the config won't match the live state

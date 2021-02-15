@@ -17,11 +17,12 @@ Puppet::Type.type(:iscsi_target).provide(:default, parent: Puppet::Provider::Isc
   # they can use the global cache
   def read_all_instances
     all_instances = {}
-    read_savefile.fetch(:targets, []).each do |target|
+    read_savefile.fetch('targets', []).each do |target|
       instance = {
         ensure: :present,
-        name: target[:wwn],
-        fabric: target[:fabric],
+        name: "/#{target['fabric']}/#{target['wwn']}",
+        fabric: target['fabric'],
+        target: target['wwn'],
       }
       all_instances[instance[:name]] = instance
     end
@@ -39,9 +40,9 @@ Puppet::Type.type(:iscsi_target).provide(:default, parent: Puppet::Provider::Isc
   def flush_instance
     case resource[:ensure]
     when :absent
-      targetcli("#{resource[:fabric]}/", 'delete', resource[:name])
+      targetcli("#{resource[:fabric]}/", 'delete', resource[:target])
     when :present
-      targetcli("#{resource[:fabric]}/", 'create', resource[:name])
+      targetcli("#{resource[:fabric]}/", 'create', resource[:target])
     end
     saveconfig
   end

@@ -1,3 +1,4 @@
+# @summary configures the system for iSCSI target serving
 class iscsi::target (
   String  $savefile                = $iscsi::target_savefile,
   Boolean $package_manage          = $iscsi::target_package_manage,
@@ -17,6 +18,9 @@ class iscsi::target (
       ensure => $package_ensure,
     }
     Package[$package_name] -> Iscsi_target_backstore<| |>
+    Package[$package_name] -> Iscsi_target<| |>
+    Package[$package_name] -> Iscsi_target_portal_group<| |>
+    Package[$package_name] -> Iscsi_target_lun<| |>
   }
   if $service_manage {
     service { $service_name:
@@ -24,6 +28,9 @@ class iscsi::target (
       enable => $service_enable,
     }
     Service[$service_name] -> Iscsi_target_backstore<| |>
+    Service[$service_name] -> Iscsi_target<| |>
+    Service[$service_name] -> Iscsi_target_portal_group<| |>
+    Service[$service_name] -> Iscsi_target_lun<| |>
   }
   if $firewall_manage {
     firewalld_service { $firewall_service_name:
@@ -31,6 +38,4 @@ class iscsi::target (
       zone   => $firewall_service_zone,
     }
   }
-
-  include iscsi::target::saveconfig
 }

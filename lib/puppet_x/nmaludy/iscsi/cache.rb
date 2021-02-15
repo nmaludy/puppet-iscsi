@@ -6,9 +6,11 @@ module PuppetX::Nmaludy::Iscsi
   class Cache
     include Singleton
     attr_accessor :cached_instances
+    attr_accessor :cached_configs
 
     def initialize
       @cached_instances = {}
+      @cached_configs = {}
     end
   end
 end

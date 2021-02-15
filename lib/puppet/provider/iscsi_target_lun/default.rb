@@ -1,6 +1,6 @@
 require 'puppet/provider/iscsi'
 
-Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Provider::Iscsi) do
+Puppet::Type.type(:iscsi_target_lun).provide(:default, parent: Puppet::Provider::Iscsi) do
   defaultfor kernel: 'Linux'
 
   commands targetcli: 'targetcli'
@@ -17,21 +17,22 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
   # they can use the global cache
   def read_all_instances
     all_instances = {}
-    data = read_savefile
-    Puppet.debug("Targetcli data: #{data}")
-    data.fetch('storage_objects', []).each do |storage_object|
-      instance = {
-        ensure: :present,
-        name: "/backstores/#{storage_object['plugin']}/#{storage_object['name']}",
-        type: storage_object['plugin'].to_sym,
-        object_name: storage_object['name'],
-      }
-      # the following properties share the same name in our resource as in the config
-      props = ['dev', 'size', 'write_back', 'sparse', 'wwn']
-      props.each do |prop|
-        instance[prop.to_sym] = storage_object[prop] if storage_object.has_key?(prop)
+    read_savefile.fetch('targets', []).each do |target|
+      target.fetch('tpgs', []).each do |tpg|
+        tpg.fetch('luns', []).each do |lun_obj|
+          idx = lun_obj['index']
+          instance = {
+            ensure: :present,
+            name: "/#{target['fabric']}/#{target['wwn']}/tpg#{tpg['tag']}/luns/lun#{idx}",
+            fabric: target['fabric'],
+            target: target['wwn'],
+            tpg_tag: tpg['tag'],
+            lun: idx,
+            storage_object: lun_obj['storage_object'],
+          }
+          all_instances[instance[:name]] = instance
+        end
       end
-      all_instances[instance[:name]] = instance
     end
     Puppet.debug("Returning all instances: #{all_instances}")
     all_instances
@@ -45,21 +46,12 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
   #  if you want to have access to the values before they were changed you can use
   #  cached_instance[:xxx] to compare against (that's why it exists)
   def flush_instance
-    type_s = resource[:type].to_s
+    path = "/#{resource[:fabric]}/#{resource[:target]}/tpg#{resource[:tpg_tag]}/luns/"
     case resource[:ensure]
     when :absent
-      targetcli("backstores/#{type_s}", 'delete', resource[:object_name])
+      targetcli(path, 'delete', resource[:lun])
     when :present
-      cmd = ["backstores/#{type_s}", 'create', resource[:object_name]]
-      if type_s == 'fileio'
-        # required
-        cmd << "file_or_dev=#{resource[:dev]}"
-        # optional
-        [:size, :write_back, :sparse, :wwn].each do |param|
-          cmd << "#{param.to_s}=#{resource[param]}" unless resource[param].nil?
-        end
-      end
-      targetcli(cmd)
+      targetcli(path, 'create', resource[:storage_object], "lun=#{resource[:lun]}")
     end
     saveconfig
   end

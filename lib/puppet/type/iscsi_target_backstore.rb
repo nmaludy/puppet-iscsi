@@ -36,13 +36,28 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
 
   # namevar is always a parameter
   newparam(:name, namevar: true) do
-    desc 'Name of the backstore'
+    desc 'Full path of the backstore'
+
+    munge do |value|
+      match = value.match(/^\/backstores\/(.*)\/(.*)$/)
+      if match
+        @resource[:type] = match.captures[0]
+        @resource[:object_name] = match.captures[1]
+      end
+      value
+    end
 
     validate do |value|
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_string(name, value)
     end
   end
 
+  newproperty(:object_name) do
+    desc 'Name of backstore object'
+
+    isrequired
+  end
+  
   newproperty(:type) do
     desc 'Type of backstore device to create.'
 
