@@ -2,7 +2,7 @@ require 'puppet_x/nmaludy/iscsi/type_utils.rb'
 
 Puppet::Type.newtype(:iscsi_target) do
   desc 'Manages iSCSI targets'
-  
+
   ensurable do
     newvalue(:present) do
       provider.create
@@ -22,7 +22,7 @@ Puppet::Type.newtype(:iscsi_target) do
     EOS
 
     munge do |value|
-      match = value.match(/^\/(.*)\/(.*)$/)
+      match = value.match(%r{^\/(.*)\/(.*)$})
       if match
         @resource[:fabric] = match.captures[0]
         @resource[:target] = match.captures[1]
@@ -52,10 +52,10 @@ Puppet::Type.newtype(:iscsi_target) do
     desc 'Name of the target in the fabric'
 
     isrequired
-    
+
     validate do |value|
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_string(name, value)
-    end    
+    end
   end
 
   newparam(:savefile) do
@@ -67,7 +67,7 @@ Puppet::Type.newtype(:iscsi_target) do
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_string(name, value)
     end
   end
-  
+
   validate do
     PuppetX::Nmaludy::Iscsi::TypeUtils.validate_required_attributes(self)
   end

@@ -2,7 +2,7 @@ require 'puppet_x/nmaludy/iscsi/type_utils.rb'
 
 Puppet::Type.newtype(:iscsi_target_portal_group) do
   desc 'Manages iSCSI target portal groups (TPG)'
-  
+
   ensurable do
     newvalue(:present) do
       provider.create
@@ -22,7 +22,7 @@ Puppet::Type.newtype(:iscsi_target_portal_group) do
     EOS
 
     munge do |value|
-      match = value.match(/^\/(.*)\/(.*)\/tpg([0-9]+)$/)
+      match = value.match(%r{^\/(.*)\/(.*)\/tpg([0-9]+)$})
       if match
         @resource[:fabric] = match.captures[0]
         @resource[:target] = match.captures[1]
@@ -35,7 +35,7 @@ Puppet::Type.newtype(:iscsi_target_portal_group) do
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_string(name, value)
     end
   end
-  
+
   newparam(:fabric) do
     desc <<-EOS
       Name of the fabric to create the target on. Lots of options here, so we're
@@ -53,10 +53,10 @@ Puppet::Type.newtype(:iscsi_target_portal_group) do
     desc 'Name of the target in the fabric'
 
     isrequired
-    
+
     validate do |value|
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_string(name, value)
-    end    
+    end
   end
 
   newparam(:tpg_tag) do
@@ -81,7 +81,7 @@ Puppet::Type.newtype(:iscsi_target_portal_group) do
       PuppetX::Nmaludy::Iscsi::TypeUtils.validate_type(name, value, Hash)
     end
   end
- 
+
   newparam(:savefile) do
     desc 'File where iSCSI configurations are read from'
 

@@ -52,7 +52,6 @@ Puppet::Type.type(:iscsi_target_portal_group).provide(:default, parent: Puppet::
     end
   end
 
-
   # this method should check resource[:ensure]
   #  if it is :present this method should create/update the instance using the values
   #  in resource[:xxx] (these are the desired state values)

@@ -2,7 +2,7 @@ require 'puppet/property/boolean'
 require 'puppet_x/nmaludy/iscsi/type_utils.rb'
 
 def validate_backstore_type(param, type_val, type_list)
-  raise ArgumentError, "#{param} is only valid when 'type' is one of #{type_list}, given: #{type_val.to_s}" unless type_list.include?(type_val.to_s)
+  raise ArgumentError, "#{param} is only valid when 'type' is one of #{type_list}, given: #{type_val}" unless type_list.include?(type_val.to_s)
 end
 
 Puppet::Type.newtype(:iscsi_target_backstore) do
@@ -21,7 +21,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     boolean stating if the created file should be created as a
     sparse file (the default), or fully initialized.
   EOS
-  
+
   ensurable do
     newvalue(:present) do
       provider.create
@@ -39,7 +39,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     desc 'Full path of the backstore'
 
     munge do |value|
-      match = value.match(/^\/backstores\/(.*)\/(.*)$/)
+      match = value.match(%r{^\/backstores\/(.*)\/(.*)$})
       if match
         @resource[:type] = match.captures[0]
         @resource[:object_name] = match.captures[1]
@@ -57,7 +57,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
 
     isrequired
   end
-  
+
   newproperty(:type) do
     desc 'Type of backstore device to create.'
 
@@ -69,7 +69,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
   newparam(:dev) do
     desc <<-EOS
       Used with: block, fileio. pscsi
-      
+
       fileio
       ======
       If "dev" is a path to a regular file to be used as backend, then the "size"
@@ -106,7 +106,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
       end
       return if value.is_a?(Integer)
 
-      unless value.downcase.match(/^[0-9]+(k|kb|m|mb|g|gb|t|tb)$/)
+      unless value.downcase =~ %r{^[0-9]+(k|kb|m|mb|g|gb|t|tb)$}
         raise ArgumentError, "#{name} when being used as a string is expected to be a number followed by (k, K, kB, KB, m, M, mB, MB, g, G, gB, GB, t, T, tB, TB), given: #{value}"
       end
     end

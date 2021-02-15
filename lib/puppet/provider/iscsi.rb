@@ -152,11 +152,11 @@ class Puppet::Provider::Iscsi < Puppet::Provider
       {}
     end
   end
-  
+
   def saveconfig
     # save after every successful command because we read from the config
     # if we don't save and the puppet run fails, the config won't match the live state
     # and the next puppet run will fail
-    targetcli("saveconfig", "savefile=#{resource[:savefile]}")
+    targetcli('saveconfig', "savefile=#{resource[:savefile]}")
   end
 end

@@ -29,7 +29,7 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
       # the following properties share the same name in our resource as in the config
       props = ['dev', 'size', 'write_back', 'sparse', 'wwn']
       props.each do |prop|
-        instance[prop.to_sym] = storage_object[prop] if storage_object.has_key?(prop)
+        instance[prop.to_sym] = storage_object[prop] if storage_object.key?(prop)
       end
       all_instances[instance[:name]] = instance
     end
@@ -56,7 +56,7 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
         cmd << "file_or_dev=#{resource[:dev]}"
         # optional
         [:size, :write_back, :sparse, :wwn].each do |param|
-          cmd << "#{param.to_s}=#{resource[param]}" unless resource[param].nil?
+          cmd << "#{param}=#{resource[param]}" unless resource[param].nil?
         end
       end
       targetcli(cmd)
