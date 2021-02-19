@@ -35,7 +35,10 @@ Puppet::Type.type(:iscsi_target_portal_group).provide(:default, parent: Puppet::
   end
 
   def read_instance(use_cache: true)
-    instances_hash = use_cache ? cached_all_instances : read_all_instances
+    # always read all instances, don't use cache because creating iscsi targets
+    # automatically creates portal groups... using cache can cause errors when trying
+    # to create/modify the instance
+    instances_hash = read_all_instances
     if instances_hash.key?(resource[:name])
       instance = instances_hash[resource[:name]]
       # special handling for custom ldap attributes
