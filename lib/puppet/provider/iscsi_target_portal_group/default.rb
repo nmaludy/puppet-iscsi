@@ -34,7 +34,7 @@ Puppet::Type.type(:iscsi_target_portal_group).provide(:default, parent: Puppet::
     all_instances
   end
 
-  def read_instance(use_cache: true)
+  def read_instance(*)
     # always read all instances, don't use cache because creating iscsi targets
     # automatically creates portal groups... using cache can cause errors when trying
     # to create/modify the instance
