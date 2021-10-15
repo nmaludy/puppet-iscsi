@@ -62,5 +62,6 @@ Puppet::Type.type(:iscsi_target_lun).provide(:default, parent: Puppet::Provider:
   # deletes this LUN, so any cached state we have is now invalid.
   def refresh
     clear_cache
+    read_instance
   end
 end
