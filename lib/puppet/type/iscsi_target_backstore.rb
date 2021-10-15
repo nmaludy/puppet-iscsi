@@ -66,7 +66,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     newvalues(:block, :fileio, :pscsi, :ramdisk)
   end
 
-  newparam(:dev) do
+  newproperty(:dev) do
     desc <<-EOS
       Used with: block, fileio. pscsi
 
