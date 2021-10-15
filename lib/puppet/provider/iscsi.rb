@@ -136,6 +136,12 @@ class Puppet::Provider::Iscsi < Puppet::Provider
     PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type] = read_all_instances
   end
 
+  # clears our cache dinstances so they are re-read (hopefully) by puppet
+  def clear_cache
+    @cached_instance = nil
+    PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type] = nil
+  end
+
   def read_savefile
     # save config first, so any changes that exist are saved to disk
     # and we can read them in the next command

@@ -117,6 +117,10 @@ Puppet::Type.newtype(:iscsi_target_lun) do
     PuppetX::Nmaludy::Iscsi::TypeUtils.validate_required_attributes(self)
   end
 
+  def refresh
+    provider.refresh
+  end
+
   autorequire(:iscsi_target_backstore) do
     @parameters[:storage_object]
   end

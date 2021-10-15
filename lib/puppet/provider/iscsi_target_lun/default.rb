@@ -55,4 +55,8 @@ Puppet::Type.type(:iscsi_target_lun).provide(:default, parent: Puppet::Provider:
     end
     saveconfig
   end
+
+  def refresh
+    clear_cache
+  end
 end
