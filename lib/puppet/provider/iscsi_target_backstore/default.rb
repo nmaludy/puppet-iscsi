@@ -50,6 +50,12 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
     when :absent
       targetcli("backstores/#{type_s}", 'delete', resource[:object_name])
     when :present
+      if cached_instance[:ensure] == :present
+        # previous state was present, that means we're updating something
+        # targetcli doesn't have a way to update these properties in-place so we
+        # have to recreate the target
+        targetcli("backstores/#{type_s}", 'delete', resource[:object_name])
+      end
       cmd = ["backstores/#{type_s}", 'create', resource[:object_name]]
       if type_s == 'fileio'
         # required
