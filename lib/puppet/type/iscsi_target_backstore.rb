@@ -85,7 +85,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     end
   end
 
-  newparam(:size) do
+  newproperty(:size) do
     desc <<-EOS
       Used with: fileio, ramdisk
       SIZE SYNTAX
@@ -112,7 +112,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     end
   end
 
-  newparam(:write_back, boolean: true, parent: Puppet::Property::Boolean) do
+  newproperty(:write_back, boolean: true, parent: Puppet::Property::Boolean) do
     desc <<-EOS
       Used with: fileio
       Should this use write caching or not. Targetcli says this is enabled by default
@@ -126,7 +126,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     end
   end
 
-  newparam(:sparse, boolean: true, parent: Puppet::Property::Boolean) do
+  newproperty(:sparse, boolean: true, parent: Puppet::Property::Boolean) do
     desc <<-EOS
       Used with: fileio
       The "sparse" parameter is only applicable when creating a new backing file. It is a
@@ -142,7 +142,7 @@ Puppet::Type.newtype(:iscsi_target_backstore) do
     end
   end
 
-  newparam(:wwn) do
+  newproperty(:wwn) do
     desc <<-EOS
       Used with: block, fileio, ramdisk
       World Wide Name of the backstore
