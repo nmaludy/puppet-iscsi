@@ -85,8 +85,12 @@ class Puppet::Provider::Iscsi < Puppet::Provider
   #                   and values of what the resource currently looks like
   # - flush_instance : this should read from resource[:xxx] and either create/update or
   #                    delete the instance based on the value of @property_hash[:ensure]
+  def cache_enabled
+    true
+  end
+
   def cached_instance
-    @cached_instance ||= read_instance
+    read_instance(use_cache: true)
   end
 
   # this method should retrieve an instance and return it as a hash
@@ -126,20 +130,28 @@ class Puppet::Provider::Iscsi < Puppet::Provider
 
   # global cached instances, so we only have to read in the groups list once
   def cached_all_instances
-    # return cache if it has been created, this means that this function will only need
-    # to be loaded once, returning all instances that exist of this resource in vsphere
-    # then, we can lookup our version by name/id/whatever. This saves a TON of processing
-    cached_instances = PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type]
-    return cached_instances unless cached_instances.nil?
+    if cache_enabled
+      # return cache if it has been created, this means that this function will only need
+      # to be loaded once, returning all instances that exist of this resource in vsphere
+      # then, we can lookup our version by name/id/whatever. This saves a TON of processing
+      cached_instances = PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type]
+      return cached_instances unless cached_instances.nil?
 
-    # read all instances from the API and save them in the cache
-    PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type] = read_all_instances
+      # read all instances from the API and save them in the cache
+      PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type] = read_all_instances
+    else
+      read_all_instances
+    end
   end
 
-  # clears our cache dinstances so they are re-read (hopefully) by puppet
-  def clear_cache
-    @cached_instance = nil
+  # clears our cached instance so it is are re-read by puppet
+  def clear_all_cached_instance
     PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances[resource.type] = nil
+  end
+
+  # clears all instances for all providers
+  def clear_all_cached_instances_all_types
+    PuppetX::Nmaludy::Iscsi::Cache.instance.cached_instances = {}
   end
 
   def read_savefile

@@ -55,6 +55,9 @@ Puppet::Type.type(:iscsi_target_backstore).provide(:default, parent: Puppet::Pro
         # targetcli doesn't have a way to update these properties in-place so we
         # have to recreate the target
         targetcli("backstores/#{type_s}", 'delete', resource[:object_name])
+        # when we delete above, this deletes things like LUNs, so we want to make
+        # sure those caches get re-read when applying the resources
+        clear_all_cached_instances_all_types
       end
       cmd = ["backstores/#{type_s}", 'create', resource[:object_name]]
       if type_s == 'fileio'
