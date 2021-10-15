@@ -56,6 +56,10 @@ Puppet::Type.type(:iscsi_target_lun).provide(:default, parent: Puppet::Provider:
     saveconfig
   end
 
+  # when refreshed by something, delete our instance cache so that when this instance
+  # is checked for existance that we get the new state.
+  # this is important if say the backing store for this LUN is recreated, it automatically
+  # deletes this LUN, so any cached state we have is now invalid.
   def refresh
     clear_cache
   end
